@@ -1,0 +1,242 @@
+import type { UpdateItem, Milestone, DocEntry } from '@/types';
+
+/** Company Updates — sourced later from Confluence announcements / Slack. */
+export const companyUpdates: UpdateItem[] = [
+  {
+    id: 'co-1',
+    type: 'announcement',
+    title: 'Q3 operating targets confirmed',
+    summary:
+      'Leadership confirmed the 835k managed-volume operating target for Q3 and the revised margin plan.',
+    updatedDate: '2026-08-08',
+    source: 'confluence',
+    sourceSystem: 'confluence',
+    owner: { name: 'Tod' },
+    url: '#',
+  },
+  {
+    id: 'co-2',
+    type: 'announcement',
+    title: 'New VP of Operations onboarding',
+    summary:
+      'Org update: incoming VP of Operations starts Aug 18. Transition plan posted in the OPSHUB space.',
+    updatedDate: '2026-08-07',
+    source: 'confluence',
+    sourceSystem: 'confluence',
+    url: '#',
+  },
+  {
+    id: 'co-3',
+    type: 'announcement',
+    title: 'Company all-hands recap',
+    summary:
+      'Recap and recording from the Aug all-hands, including the AI-managed volume update.',
+    updatedDate: '2026-08-05',
+    source: 'slack',
+    sourceSystem: 'slack',
+    url: '#',
+  },
+];
+
+/** Operations Updates — sourced later from tagged Confluence pages / Jira. */
+export const operationsUpdates: UpdateItem[] = [
+  {
+    id: 'ops-1',
+    type: 'process',
+    title: 'Escalation routing model updated',
+    summary:
+      'Tier-2 escalations now route through the shared Ops queue with a 30-min SLA. SOP updated.',
+    updatedDate: '2026-08-09',
+    source: 'confluence',
+    sourceSystem: 'confluence',
+    owner: { name: 'Support Operations' },
+    url: '#',
+  },
+  {
+    id: 'ops-2',
+    type: 'process',
+    title: 'Account launch: Northwind',
+    summary:
+      'Northwind goes live Aug 14. Coverage plan and runbook linked from Account Operations.',
+    updatedDate: '2026-08-08',
+    source: 'jira',
+    sourceSystem: 'jira',
+    owner: { name: 'Launch Team' },
+    url: '#',
+  },
+  {
+    id: 'ops-3',
+    type: 'process',
+    title: 'Staffing model change for weekend coverage',
+    summary:
+      'Weekend floater pool expanded by 12% to protect service level after the late-June peak.',
+    updatedDate: '2026-08-06',
+    source: 'confluence',
+    sourceSystem: 'confluence',
+    owner: { name: 'Workforce Planning' },
+    url: '#',
+  },
+];
+
+/** What's New — dynamic feed of recently created / updated Operations content. */
+export const whatsNew: UpdateItem[] = [
+  {
+    id: 'new-1',
+    type: 'dashboard',
+    title: 'Workforce Coverage Dashboard',
+    summary: 'New staffing and bench visibility across Operations.',
+    updatedDate: '2026-08-10',
+    isNew: true,
+    source: 'warehouse',
+    sourceSystem: 'warehouse',
+    url: '#',
+  },
+  {
+    id: 'new-2',
+    type: 'sop',
+    title: 'SOP: Incident escalation & comms',
+    summary: 'New standard operating procedure for incident escalation.',
+    updatedDate: '2026-08-09',
+    isNew: true,
+    source: 'confluence',
+    sourceSystem: 'confluence',
+    url: '#',
+  },
+  {
+    id: 'new-3',
+    type: 'ai-tool',
+    title: 'Failure Intelligence (Beta)',
+    summary: 'New AI tool clustering failure categories for RCA.',
+    updatedDate: '2026-08-04',
+    isNew: true,
+    source: 'manual',
+    sourceSystem: 'manual',
+    url: '#ai-tools',
+  },
+  {
+    id: 'new-4',
+    type: 'process',
+    title: 'Updated: Account review template',
+    summary: 'Refreshed account review template with AI containment section.',
+    updatedDate: '2026-08-02',
+    source: 'confluence',
+    sourceSystem: 'confluence',
+    url: '#',
+  },
+];
+
+/** Upcoming milestones — sourced later from Jira due dates / calendars. */
+export const upcomingMilestones: Milestone[] = [
+  {
+    id: 'm-1',
+    title: 'Northwind account launch',
+    date: '2026-08-14',
+    category: 'launch',
+    owner: { name: 'Launch Team' },
+    sourceSystem: 'jira',
+    url: '#',
+  },
+  {
+    id: 'm-2',
+    title: 'August WBR',
+    date: '2026-08-15',
+    category: 'review',
+    owner: { name: 'Operations Intelligence' },
+    sourceSystem: 'manual',
+    url: '#',
+  },
+  {
+    id: 'm-3',
+    title: 'Zendesk → unified queue migration',
+    date: '2026-08-21',
+    category: 'migration',
+    owner: { name: 'Support Operations' },
+    sourceSystem: 'jira',
+    url: '#',
+  },
+  {
+    id: 'm-4',
+    title: 'Q4 capacity planning deadline',
+    date: '2026-08-29',
+    category: 'planning',
+    owner: { name: 'Workforce Planning' },
+    sourceSystem: 'manual',
+    url: '#',
+  },
+];
+
+/** Documentation directory — sourced later from Confluence labels (ops-ai-doc, etc). */
+export const documentation: DocEntry[] = [
+  {
+    id: 'doc-1',
+    type: 'documentation',
+    title: 'Ops Intelligence Architecture',
+    section: 'architecture',
+    description: 'How the Operations data + AI layer is assembled.',
+    updatedDate: '2026-08-01',
+    owner: { name: 'Operations Intelligence' },
+    sourceSystem: 'confluence',
+    tags: ['ops-architecture'],
+    url: '#',
+  },
+  {
+    id: 'doc-2',
+    type: 'documentation',
+    title: 'AI Prompting Standards',
+    section: 'ai-standards',
+    description: 'House standards for prompts used in Ops AI tools.',
+    updatedDate: '2026-07-28',
+    owner: { name: 'AI Quality' },
+    sourceSystem: 'confluence',
+    tags: ['ops-ai-doc'],
+    url: '#',
+  },
+  {
+    id: 'doc-3',
+    type: 'documentation',
+    title: 'Metric Definitions',
+    section: 'metric-definitions',
+    description: 'Canonical definitions: containment, AHT, SL, margin.',
+    updatedDate: '2026-07-30',
+    owner: { name: 'Operations Intelligence' },
+    sourceSystem: 'confluence',
+    tags: ['ops-metric'],
+    url: '#',
+  },
+  {
+    id: 'doc-4',
+    type: 'documentation',
+    title: 'Data Definitions & Lineage',
+    section: 'data-definitions',
+    description: 'Warehouse tables and lineage behind Ops dashboards.',
+    updatedDate: '2026-07-22',
+    owner: { name: 'Data' },
+    sourceSystem: 'confluence',
+    tags: ['ops-data'],
+    url: '#',
+  },
+  {
+    id: 'doc-5',
+    type: 'documentation',
+    title: 'Automation Runbooks',
+    section: 'automation',
+    description: 'How Ops automations are built, deployed, and monitored.',
+    updatedDate: '2026-07-19',
+    owner: { name: 'Operations Intelligence' },
+    sourceSystem: 'confluence',
+    tags: ['ops-ai-doc'],
+    url: '#',
+  },
+  {
+    id: 'doc-6',
+    type: 'documentation',
+    title: 'Ops AI Governance & FAQ',
+    section: 'governance',
+    description: 'Guardrails, review process, and frequently asked questions.',
+    updatedDate: '2026-07-15',
+    owner: { name: 'AI Quality' },
+    sourceSystem: 'confluence',
+    tags: ['ops-ai-doc'],
+    url: '#',
+  },
+];
