@@ -1,0 +1,589 @@
+<title>Crescendo Operations Hub — Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  /* ===== Design tokens ===================================================== */
+  :root {
+    --canvas: #f6f8fa;
+    --surface: #ffffff;
+    --surface-2: #fbfcfd;
+    --ink: #0f172a;
+    --ink-muted: #475569;
+    --ink-faint: #94a3b8;
+    --line: #e5e9ee;
+    --feature: #132532;
+    --feature-soft: #1b3040;
+    --feature-ink: #f8fafc;
+    --accent: #0fb981;
+    --accent-soft: #d1fae5;
+    --accent-ink: #065f46;
+    --teal: #2dd4bf;
+    --blue: #3b82f6;
+    --link: #0d9488;
+    --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-hover: 0 6px 16px rgba(15, 23, 42, 0.09), 0 2px 6px rgba(15, 23, 42, 0.06);
+    /* semantic badge tokens */
+    --ok-bg: #d1fae5;      --ok-fg: #047857;   --ok-dot: #10b981;
+    --beta-bg: #dbeafe;    --beta-fg: #1d4ed8; --beta-dot: #3b82f6;
+    --pilot-bg: #e0e7ff;   --pilot-fg: #4338ca;--pilot-dot: #6366f1;
+    --dev-bg: #eef2f6;     --dev-fg: #475569;  --dev-dot: #94a3b8;
+    --warn-bg: #fef3c7;    --warn-fg: #b45309; --warn-dot: #f59e0b;
+    --up: #059669; --down: #e11d48;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --canvas: #0b1220;
+      --surface: #121a2b;
+      --surface-2: #0f1728;
+      --ink: #e9eef5;
+      --ink-muted: #9fb0c3;
+      --ink-faint: #64748b;
+      --line: #22304a;
+      --feature: #0c1a26;
+      --feature-soft: #16283a;
+      --feature-ink: #f1f5f9;
+      --accent: #34d399;
+      --accent-soft: #0f3d31;
+      --accent-ink: #a7f3d0;
+      --link: #5eead4;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+      --ok-bg: #0f3d31; --ok-fg: #6ee7b7; --ok-dot: #34d399;
+      --beta-bg: #14294d; --beta-fg: #93c5fd; --beta-dot: #60a5fa;
+      --pilot-bg: #232253; --pilot-fg: #c7d2fe; --pilot-dot: #a5b4fc;
+      --dev-bg: #1c2740; --dev-fg: #94a3b8; --dev-dot: #64748b;
+      --warn-bg: #3a2a0c; --warn-fg: #fcd34d; --warn-dot: #f59e0b;
+      --up: #34d399; --down: #fb7185;
+    }
+  }
+  :root[data-theme="dark"] {
+    --canvas: #0b1220;
+    --surface: #121a2b;
+    --surface-2: #0f1728;
+    --ink: #e9eef5;
+    --ink-muted: #9fb0c3;
+    --ink-faint: #64748b;
+    --line: #22304a;
+    --feature: #0c1a26;
+    --feature-soft: #16283a;
+    --feature-ink: #f1f5f9;
+    --accent: #34d399;
+    --accent-soft: #0f3d31;
+    --accent-ink: #a7f3d0;
+    --link: #5eead4;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+    --ok-bg: #0f3d31; --ok-fg: #6ee7b7; --ok-dot: #34d399;
+    --beta-bg: #14294d; --beta-fg: #93c5fd; --beta-dot: #60a5fa;
+    --pilot-bg: #232253; --pilot-fg: #c7d2fe; --pilot-dot: #a5b4fc;
+    --dev-bg: #1c2740; --dev-fg: #94a3b8; --dev-dot: #64748b;
+    --warn-bg: #3a2a0c; --warn-fg: #fcd34d; --warn-dot: #f59e0b;
+    --up: #34d399; --down: #fb7185;
+  }
+
+  /* ===== Base ============================================================== */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+  }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  /* ===== Sidebar ========================================================== */
+  .sidebar {
+    width: 236px; flex-shrink: 0;
+    border-right: 1px solid var(--line);
+    background: var(--surface);
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 20px 20px 16px; }
+  .brand .logo {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    display: grid; place-items: center; color: #fff;
+  }
+  .brand b { font-size: 14px; letter-spacing: -0.01em; }
+  .nav { flex: 1; overflow-y: auto; padding: 4px 12px 20px; }
+  .nav a.item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 9px; font-size: 13.5px;
+    color: var(--ink-muted); margin-bottom: 2px;
+  }
+  .nav a.item:hover { background: var(--surface-2); color: var(--ink); }
+  .nav a.item.active { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+  .nav .sub { margin: 2px 0 6px 20px; padding-left: 10px; border-left: 1px solid var(--line); }
+  .nav .sub a { display: block; padding: 6px 10px; border-radius: 7px; font-size: 12.5px; color: var(--ink-muted); }
+  .nav .sub a:hover { background: var(--surface-2); color: var(--ink); }
+  .sidefoot { border-top: 1px solid var(--line); padding: 12px 20px; font-size: 11px; color: var(--ink-faint); }
+
+  /* ===== Main ============================================================= */
+  .main { flex: 1; min-width: 0; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 32px 56px; }
+  section { margin-top: 48px; }
+
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+
+  /* Header */
+  .head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+  h1 { font-size: clamp(32px, 4vw, 46px); font-weight: 800; letter-spacing: -0.03em; }
+  .lede { margin-top: 10px; max-width: 620px; font-size: 14px; color: var(--ink-muted); }
+  .meta-r { text-align: right; font-size: 12px; color: var(--ink-faint); white-space: nowrap; }
+  .meta-r b { color: var(--ink-muted); }
+  .search {
+    margin-top: 20px; display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 11px 14px; box-shadow: var(--shadow);
+  }
+  .search input { border: 0; outline: 0; background: transparent; width: 100%; font-size: 14px; color: var(--ink); }
+  .search input::placeholder { color: var(--ink-faint); }
+  .chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow);
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--ink-muted);
+  }
+  .chip:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+  /* Section header */
+  .sec-head { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .sec-head h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+  .sec-head p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink-muted); }
+  .subhead { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; margin: 22px 0 12px; }
+  .count { background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-muted); border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 600; }
+  .grouplabel { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin: 16px 0 10px; }
+
+  /* Grids */
+  .grid { display: grid; gap: 14px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+
+  /* Card */
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 16px; transition: transform .15s, box-shadow .15s, border-color .15s;
+    display: flex; flex-direction: column;
+  }
+  a.card:hover, .card.hoverable:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--ink-faint); }
+  .card .title { font-size: 13.5px; font-weight: 700; }
+  .card .desc { font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+  .row { display: flex; align-items: center; gap: 8px; }
+  .spacer { flex: 1; }
+  .icon-tile { width: 34px; height: 34px; border-radius: 9px; background: var(--surface-2); color: var(--ink-muted); display: grid; place-items: center; flex-shrink: 0; }
+  .icon-tile.accent { background: var(--accent-soft); color: var(--accent-ink); }
+
+  /* Feed row */
+  .feed-top { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-faint); }
+  .src { margin-left: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; font-size: 10px; font-weight: 600; color: var(--ink-muted); }
+  .new { background: var(--accent); color: #fff; border-radius: 5px; padding: 1px 6px; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+  .feed-title { font-size: 13.5px; font-weight: 700; margin-top: 6px; }
+  a.card:hover .feed-title { color: var(--link); }
+  .feed-sum { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .owner { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-muted); margin-top: 10px; }
+  .ini { width: 17px; height: 17px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 8.5px; font-weight: 700; color: var(--ink-muted); }
+
+  /* Upcoming list */
+  .list { padding: 6px; }
+  .list a { display: flex; align-items: center; gap: 12px; padding: 9px 8px; border-radius: 10px; }
+  .list a:hover { background: var(--surface-2); }
+  .list .u-title { font-size: 13px; font-weight: 600; }
+  .list .u-date { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--ink-muted); white-space: nowrap; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 600; }
+  .badge .dot { width: 6px; height: 6px; border-radius: 999px; }
+  .b-ok { background: var(--ok-bg); color: var(--ok-fg); } .b-ok .dot { background: var(--ok-dot); }
+  .b-beta { background: var(--beta-bg); color: var(--beta-fg); } .b-beta .dot { background: var(--beta-dot); }
+  .b-pilot { background: var(--pilot-bg); color: var(--pilot-fg); } .b-pilot .dot { background: var(--pilot-dot); }
+  .b-dev { background: var(--dev-bg); color: var(--dev-fg); } .b-dev .dot { background: var(--dev-dot); }
+  .b-warn { background: var(--warn-bg); color: var(--warn-fg); } .b-warn .dot { background: var(--warn-dot); }
+
+  /* Links row */
+  .links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; }
+  .links a { font-size: 12px; font-weight: 600; color: var(--link); display: inline-flex; align-items: center; gap: 4px; }
+  .links a:hover { text-decoration: underline; }
+  .cardfoot { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+
+  /* Tool card dl */
+  dl { margin: 12px 0 0; }
+  dl dt { font-size: 11.5px; font-weight: 700; color: var(--ink-muted); }
+  dl dd { margin: 0 0 8px; font-size: 12px; color: var(--ink-muted); }
+  .btn-launch { display: inline-flex; align-items: center; gap: 5px; background: var(--feature); color: var(--feature-ink); border-radius: 9px; padding: 5px 11px; font-size: 12px; font-weight: 700; }
+  .btn-launch:hover { background: var(--feature-soft); }
+  .btn-ghost { display: inline-flex; align-items: center; gap: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); border-radius: 9px; padding: 5px 11px; font-size: 12px; font-weight: 700; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1fr 312px; gap: 24px; margin-top: 28px; }
+  .focus-grid { display: grid; grid-template-columns: 220px 1fr; gap: 16px; margin-top: 14px; }
+  .feature-card { background: var(--feature); color: var(--feature-ink); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+  .feature-card .lab { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #cbd5e1; }
+  .feature-card .big { font-size: 52px; font-weight: 800; line-height: 1; margin-top: 8px; letter-spacing: -0.02em; }
+  .feature-card .delta { margin-top: 8px; font-size: 13px; font-weight: 700; }
+  .kpi-inline { display: flex; flex-wrap: wrap; gap: 8px 40px; align-items: flex-start; }
+  .kpi-inline .lab { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+  .kpi-inline .v { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  .prog { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; margin-top: 6px; }
+  .prog > i { display: block; height: 100%; width: 11%; border-radius: 999px; background: linear-gradient(90deg, var(--teal), var(--blue)); }
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .kpi { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px; }
+  .kpi .lab { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
+  .kpi .v { font-size: 20px; font-weight: 800; margin-top: 2px; }
+  .kpi .d { font-size: 11px; font-weight: 600; }
+  .refreshed { font-size: 11.5px; color: var(--ink-faint); margin-top: 12px; }
+  .widget { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+  .widget .big { font-size: 50px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; margin-top: 12px; }
+  .bars { display: flex; align-items: flex-end; gap: 3px; height: 90px; margin-top: 16px; }
+  .bars > i { flex: 1; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--blue), var(--teal)); }
+  .axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-faint); margin-top: 6px; }
+
+  .up { color: var(--up); } .down { color: var(--down); }
+  .hidden { display: none !important; }
+  .noresult { font-size: 13px; color: var(--ink-muted); padding: 14px; border: 1px dashed var(--line); border-radius: 12px; }
+
+  .note { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 12px 14px; font-size: 12.5px; color: var(--ink-muted); }
+
+  /* Responsive */
+  @media (max-width: 1080px) { .hero { grid-template-columns: 1fr; } .focus-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .g4, .g3 { grid-template-columns: repeat(2, 1fr); }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 620px) { .g2, .g3, .g4, .kpi-strip { grid-template-columns: 1fr; } .wrap { padding: 20px; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .card { transition: none; } }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+
+  /* tiny inline svg icon sizing */
+  svg.i { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  svg.s { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+
+<div class="shell">
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+      <b>Operations Hub</b>
+    </div>
+    <nav class="nav">
+      <a class="item active" href="#top"><svg class="i" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg> Home</a>
+      <a class="item" href="#pulse"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Operations Pulse</a>
+      <a class="item" href="#systems"><svg class="i" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg> Systems &amp; Operations</a>
+      <div class="sub">
+        <a href="#workforce">Workforce &amp; Coverage</a>
+        <a href="#accounts">Account Operations</a>
+        <a href="#cadence">Operating Cadence</a>
+        <a href="#platforms">Systems</a>
+        <a href="#sops">SOP &amp; Process Library</a>
+      </div>
+      <a class="item" href="#ai"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg> Ops AI, Insights &amp; Tooling</a>
+      <div class="sub">
+        <a href="#ai-tools">AI Tools</a>
+        <a href="#dashboards">Dashboards &amp; Metrics</a>
+        <a href="#docs">Documentation</a>
+      </div>
+      <a class="item" href="#help"><svg class="i" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg> Help / Ownership</a>
+    </nav>
+    <div class="sidefoot">Crescendo · Operations</div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+    <div class="wrap">
+      <!-- Header -->
+      <header id="top">
+        <div class="head">
+          <div>
+            <h1>Crescendo Operations</h1>
+            <p class="lede">The front door for Operations — what's happening, the systems and processes that run the org, and the AI tools, dashboards, and docs built to help teams make better decisions.</p>
+          </div>
+          <div class="meta-r">Owner: Operations Intelligence<br /><b>Updated Aug 11</b></div>
+        </div>
+        <div class="search">
+          <svg class="i" viewBox="0 0 24 24" style="color:var(--ink-faint)"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"/></svg>
+          <input id="q" type="search" placeholder="Search Operations — systems, SOPs, tools, dashboards, docs" aria-label="Search Operations" />
+        </div>
+        <div class="chips">
+          <a class="chip" href="#platforms">Systems</a>
+          <a class="chip" href="#sops">SOPs</a>
+          <a class="chip" href="#ai-tools">AI Tools</a>
+          <a class="chip" href="#dashboards">Dashboards</a>
+          <a class="chip" href="#dashboards">Metrics</a>
+        </div>
+      </header>
+
+      <!-- Hero -->
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Quarter Focus</div>
+          <h2 style="font-size:30px;font-weight:800;letter-spacing:-0.02em;margin-top:4px">AI Managed Volume</h2>
+          <div class="focus-grid">
+            <div class="feature-card">
+              <div class="lab">Current Week Volume</div>
+              <div class="big num">115k</div>
+              <div class="delta down">-8% WoW</div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:center">
+              <div class="kpi-inline">
+                <div>
+                  <div class="lab">Projected</div>
+                  <div class="v num">1.51M</div>
+                  <div style="font-size:12px;color:var(--accent)">Grafana base case</div>
+                </div>
+                <div>
+                  <div class="lab">QTD Attainment</div>
+                  <div class="v num">11%</div>
+                </div>
+              </div>
+              <div style="margin-top:14px">
+                <div class="prog"><i></i></div>
+                <div style="font-size:12px;color:var(--ink-muted);margin-top:7px">92.9k toward 835k — Quarter maturity 7%</div>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-strip">
+            <div class="kpi"><div class="lab">AI Containment</div><div class="v num">68%</div><div class="d up">+1.4pt WoW</div></div>
+            <div class="kpi"><div class="lab">Service Level</div><div class="v num">94%</div><div class="d down">-0.6pt WoW</div></div>
+            <div class="kpi"><div class="lab">Escalation Rate</div><div class="v num">3.2%</div><div class="d up">-0.3pt WoW</div></div>
+            <div class="kpi"><div class="lab">Avg Handle Time</div><div class="v num">6.4m</div><div class="d down">+0.2m WoW</div></div>
+          </div>
+          <div class="refreshed">Last refreshed 11:42 AM</div>
+        </div>
+        <!-- live widget -->
+        <div class="widget">
+          <div class="row">
+            <div>
+              <div class="eyebrow">Daily Volume</div>
+              <div style="font-size:16px;font-weight:800;margin-top:2px">Grafana daily volume</div>
+            </div>
+            <span class="spacer"></span>
+            <svg class="s" viewBox="0 0 24 24" style="color:var(--ink-faint)"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82M4.6 9a1.65 1.65 0 0 0-.33-1.82"/></svg>
+          </div>
+          <div class="big num">11.1K</div>
+          <div class="bars" id="bars"></div>
+          <div class="axis"><span>7/13</span><span>8/11</span></div>
+          <div class="refreshed">Last refreshed 11:42 AM</div>
+        </div>
+      </div>
+
+      <!-- ===================== SECTION 1: PULSE ===================== -->
+      <section id="pulse">
+        <div class="sec-head">
+          <div class="eyebrow">Section 1</div>
+          <h2>Operations Pulse</h2>
+          <p>What's happening across Operations, the company, and our teams.</p>
+        </div>
+
+        <div class="grid g2" style="margin-top:6px">
+          <div>
+            <div class="subhead">Company Updates <span class="count">3</span></div>
+            <div class="grid" data-dir>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 8</span><span class="src">Confluence</span></div><div class="feed-title">Q3 operating targets confirmed</div><div class="feed-sum">Leadership confirmed the 835k managed-volume operating target for Q3 and the revised margin plan.</div><div class="owner"><span class="ini">T</span>Tod</div></a>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 7</span><span class="src">Confluence</span></div><div class="feed-title">New VP of Operations onboarding</div><div class="feed-sum">Org update: incoming VP of Operations starts Aug 18. Transition plan posted in the OPSHUB space.</div></a>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 5</span><span class="src">Slack</span></div><div class="feed-title">Company all-hands recap</div><div class="feed-sum">Recap and recording from the Aug all-hands, including the AI-managed volume update.</div></a>
+            </div>
+          </div>
+          <div>
+            <div class="subhead">Operations Updates <span class="count">3</span></div>
+            <div class="grid" data-dir>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 9</span><span class="src">Confluence</span></div><div class="feed-title">Escalation routing model updated</div><div class="feed-sum">Tier-2 escalations now route through the shared Ops queue with a 30-min SLA. SOP updated.</div><div class="owner"><span class="ini">SO</span>Support Operations</div></a>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 8</span><span class="src">Jira</span></div><div class="feed-title">Account launch: Northwind</div><div class="feed-sum">Northwind goes live Aug 14. Coverage plan and runbook linked from Account Operations.</div><div class="owner"><span class="ini">LT</span>Launch Team</div></a>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 6</span><span class="src">Confluence</span></div><div class="feed-title">Staffing model change for weekend coverage</div><div class="feed-sum">Weekend floater pool expanded by 12% to protect service level after the late-June peak.</div><div class="owner"><span class="ini">WP</span>Workforce Planning</div></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div>
+            <div class="subhead">What's New <span class="count">4</span></div>
+            <div class="grid" data-dir>
+              <a class="card" href="#"><div class="feed-top"><span class="new">NEW</span><span>Aug 10</span><span class="src">Warehouse</span></div><div class="feed-title">Workforce Coverage Dashboard</div><div class="feed-sum">New staffing and bench visibility across Operations.</div></a>
+              <a class="card" href="#"><div class="feed-top"><span class="new">NEW</span><span>Aug 9</span><span class="src">Confluence</span></div><div class="feed-title">SOP: Incident escalation &amp; comms</div><div class="feed-sum">New standard operating procedure for incident escalation.</div></a>
+              <a class="card" href="#"><div class="feed-top"><span class="new">NEW</span><span>Aug 4</span><span class="src">Curated</span></div><div class="feed-title">Failure Intelligence (Beta)</div><div class="feed-sum">New AI tool clustering failure categories for RCA.</div></a>
+              <a class="card" href="#"><div class="feed-top"><span>Aug 2</span><span class="src">Confluence</span></div><div class="feed-title">Updated: Account review template</div><div class="feed-sum">Refreshed account review template with AI containment section.</div></a>
+            </div>
+          </div>
+          <div>
+            <div class="subhead">Upcoming <span class="count">4</span></div>
+            <div class="card list" data-dir style="padding:6px">
+              <a href="#"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg></span><div><div class="u-title">Northwind account launch</div><div class="owner" style="margin-top:2px"><span class="ini">LT</span>Launch Team</div></div><span class="u-date">Aug 14</span></a>
+              <a href="#"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div><div class="u-title">August WBR</div><div class="owner" style="margin-top:2px"><span class="ini">OI</span>Operations Intelligence</div></div><span class="u-date">Aug 15</span></a>
+              <a href="#"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div><div class="u-title">Zendesk → unified queue migration</div><div class="owner" style="margin-top:2px"><span class="ini">SO</span>Support Operations</div></div><span class="u-date">Aug 21</span></a>
+              <a href="#"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 4h18v18H3zM3 10h18M8 2v4M16 2v4"/></svg></span><div><div class="u-title">Q4 capacity planning deadline</div><div class="owner" style="margin-top:2px"><span class="ini">WP</span>Workforce Planning</div></div><span class="u-date">Aug 29</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION 2: SYSTEMS ===================== -->
+      <section id="systems">
+        <div class="sec-head">
+          <div class="eyebrow">Section 2</div>
+          <h2>Systems &amp; Operations</h2>
+          <p>The systems, workflows, and operating processes that power the organization.</p>
+        </div>
+
+        <div id="workforce" class="subhead">Workforce &amp; Coverage</div>
+        <div class="grid g3" data-dir>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span><div class="title">Staffing &amp; Workforce Planning</div></div><div class="desc">Plans, models, and headcount.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/></svg></span><div class="title">Coverage Models</div></div><div class="desc">How coverage maps to demand.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span><div class="title">Bench / Floater Visibility</div></div><div class="desc">Available capacity in real time.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M3 4h18v18H3zM3 10h18M8 2v4M16 2v4"/></svg></span><div class="title">Capacity &amp; Scheduling</div></div><div class="desc">Capacity planning and schedules.</div></a>
+          <a class="card hoverable" href="#ai-tools"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/></svg></span><div class="title">Forecasting</div></div><div class="desc">Volume and staffing forecasts.</div></a>
+        </div>
+
+        <div id="accounts" class="subhead">Account Operations</div>
+        <div class="grid g3" data-dir>
+          <a class="card hoverable" href="#dashboards"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><div class="title">Account Health</div></div><div class="desc">Risk, performance, opportunity.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></span><div class="title">Escalations</div></div><div class="desc">Routing and escalation SOPs.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg></span><div class="title">Launch / Onboarding</div></div><div class="desc">New account launch runbooks.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">Performance Management</div></div><div class="desc">Account performance reviews.</div></a>
+        </div>
+
+        <div id="cadence" class="subhead">Operating Cadence</div>
+        <div class="grid g3" data-dir>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M3 4h18v18H3zM3 10h18M8 2v4M16 2v4"/></svg></span><div class="title">WBR</div></div><div class="desc">Weekly business review.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M3 4h18v18H3zM3 10h18M8 2v4M16 2v4"/></svg></span><div class="title">MBR</div></div><div class="desc">Monthly business review.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M3 4h18v18H3zM3 10h18M8 2v4M16 2v4"/></svg></span><div class="title">QBR</div></div><div class="desc">Quarterly business review.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span><div class="title">Planning Cycles</div></div><div class="desc">Planning and operating reviews.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/></svg></span><div class="title">Decision Logs</div></div><div class="desc">Decisions and rationale.</div></a>
+        </div>
+
+        <div id="platforms" class="subhead">Systems <span class="count">6</span></div>
+        <div class="grid g3" data-dir>
+          <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Jira</div><span class="spacer"></span><span class="badge b-ok"><span class="dot"></span>Operational</span></div><div class="desc">Operational initiatives, launches, and milestone tracking.</div><div class="links"><a href="#">Open</a><a href="#">Docs</a><a href="#">SOPs</a><a href="#">Known issues</a></div><div class="cardfoot owner" style="margin:12px 0 0"><span class="ini">OP</span>Operations PMO</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Confluence</div><span class="spacer"></span><span class="badge b-ok"><span class="dot"></span>Operational</span></div><div class="desc">Operations knowledge base, SOPs, and documentation.</div><div class="links"><a href="#">Open</a><a href="#">Docs</a><a href="#">SOPs</a></div><div class="cardfoot owner" style="margin:12px 0 0"><span class="ini">OP</span>Operations PMO</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Zendesk</div><span class="spacer"></span><span class="badge b-ok"><span class="dot"></span>Operational</span></div><div class="desc">Support ticketing and human-touch case management.</div><div class="links"><a href="#">Open</a><a href="#">Docs</a><a href="#">SOPs</a><a href="#">Known issues</a></div><div class="cardfoot owner" style="margin:12px 0 0"><span class="ini">SO</span>Support Operations</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Gorgias</div><span class="spacer"></span><span class="badge b-warn"><span class="dot"></span>Maintenance</span></div><div class="desc">E-commerce support helpdesk for select accounts.</div><div class="links"><a href="#">Open</a><a href="#">Docs</a></div><div class="cardfoot owner" style="margin:12px 0 0"><span class="ini">SO</span>Support Operations</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Workforce Management</div><span class="spacer"></span><span class="badge b-ok"><span class="dot"></span>Operational</span></div><div class="desc">Scheduling, forecasting, and coverage planning.</div><div class="links"><a href="#">Open</a><a href="#">Docs</a><a href="#">SOPs</a></div><div class="cardfoot owner" style="margin:12px 0 0"><span class="ini">WP</span>Workforce Planning</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Grafana</div><span class="spacer"></span><span class="badge b-ok"><span class="dot"></span>Operational</span></div><div class="desc">Live operational volume and platform metrics.</div><div class="links"><a href="#">Open</a><a href="#">Docs</a></div><div class="cardfoot owner" style="margin:12px 0 0"><span class="ini">P</span>Platform</div></div>
+        </div>
+
+        <div id="sops" class="subhead">SOP &amp; Process Library</div>
+        <div data-dir>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/></svg></span><div class="title">Browse the SOP &amp; Process Library</div></div><div class="desc">Auto-generated from Confluence pages labelled <b>ops-sop</b> / <b>ops-process</b>. Filter by function, system, owner, or last updated.</div></a>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION 3: OPS AI ===================== -->
+      <section id="ai">
+        <div class="sec-head">
+          <div class="eyebrow">Section 3</div>
+          <h2>Ops AI, Insights &amp; Tooling</h2>
+          <p>AI tools, analytics, automation, and operational intelligence built to help teams make better decisions.</p>
+        </div>
+
+        <div id="ai-tools" class="subhead">AI Tools <span class="count">8</span></div>
+        <div class="grid g3" data-dir>
+          <!-- tool card template repeated -->
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Workforce Intelligence</div><span class="spacer"></span><span class="badge b-beta"><span class="dot"></span>Beta</span></div><dl><dt>What it does</dt><dd>Staffing, coverage, bench and capacity visibility across Operations.</dd><dt>Use it when</dt><dd>You need to see whether coverage matches demand for a team or account.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Account Health</div><span class="spacer"></span><span class="badge b-ok"><span class="dot"></span>Production</span></div><dl><dt>What it does</dt><dd>Unified account-level view of operational risk, performance and opportunity.</dd><dt>Use it when</dt><dd>Before an account review or when triaging an at-risk account.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Failure Intelligence</div><span class="spacer"></span><span class="badge b-beta"><span class="dot"></span>Beta</span></div><dl><dt>What it does</dt><dd>Clusters and categorizes AI + human failures to surface top drivers.</dd><dt>Use it when</dt><dd>Investigating why containment dropped or escalations rose.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">AQ</span>AI Quality</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Root Cause Analysis</div><span class="spacer"></span><span class="badge b-pilot"><span class="dot"></span>Pilot</span></div><dl><dt>What it does</dt><dd>Automates first-pass RCA on escalations and incidents from support data.</dd><dt>Use it when</dt><dd>You need a starting hypothesis for an incident or spike.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">AQ</span>AI Quality</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Forecasting</div><span class="spacer"></span><span class="badge b-beta"><span class="dot"></span>Beta</span></div><dl><dt>What it does</dt><dd>Volume and staffing forecasts by account, blending actuals + seasonality.</dd><dt>Use it when</dt><dd>Planning coverage or validating a capacity plan.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">WP</span>Workforce Planning</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">AI Opportunity Detection</div><span class="spacer"></span><span class="badge b-dev"><span class="dot"></span>Development</span></div><dl><dt>What it does</dt><dd>Finds high-volume, low-containment intents ripe for automation and sizes them.</dd><dt>Use it when</dt><dd>Prioritizing the automation backlog for an account.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Knowledge Gap Detection</div><span class="spacer"></span><span class="badge b-pilot"><span class="dot"></span>Pilot</span></div><dl><dt>What it does</dt><dd>Detects missing or stale knowledge that drives AI deflection failures.</dd><dt>Use it when</dt><dd>Improving containment on a specific topic or account.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">AQ</span>AI Quality</div></div>
+          <div class="card hoverable"><div class="row"><span class="icon-tile accent"><svg class="s" viewBox="0 0 24 24"><path d="M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2"/></svg></span><div class="title">Automated MBR / WBR Insights</div><span class="spacer"></span><span class="badge b-dev"><span class="dot"></span>Development</span></div><dl><dt>What it does</dt><dd>Drafts the narrative and callouts for weekly / monthly business reviews.</dd><dt>Use it when</dt><dd>Preparing a WBR or MBR and want a first-draft story.</dd></dl><div class="links" style="margin-top:auto"><a class="btn-launch" href="#">Launch</a><a href="#">Docs</a><a href="#" style="color:var(--ink-muted)">Feedback</a></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+        </div>
+
+        <div id="dashboards" class="subhead">Dashboards &amp; Metrics <span class="count">6</span></div>
+        <div data-dir>
+          <div class="grouplabel">Executive Operations</div>
+          <div class="grid g3">
+            <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">Executive Operations Health</div></div><div class="desc">Overall Operations health: margin, SLA, account health, volume, staffing.</div><dl style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px"><div><dt>Source</dt><dd>Warehouse + Support</dd></div><div><dt>Refresh</dt><dd>Hourly</dd></div></dl><div class="row" style="margin-top:auto"><a class="btn-ghost" href="#">Open Dashboard</a><span class="spacer"></span><span class="refreshed">Last refreshed 11:42 AM</span></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+          </div>
+          <div class="grouplabel">Workforce</div>
+          <div class="grid g3">
+            <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">Workforce Coverage</div></div><div class="desc">Staffing vs demand, capacity, utilization, coverage, bench and forecast accuracy.</div><dl style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px"><div><dt>Source</dt><dd>Warehouse + WFM</dd></div><div><dt>Refresh</dt><dd>Every 15 min</dd></div></dl><div class="row" style="margin-top:auto"><a class="btn-ghost" href="#">Open Dashboard</a><span class="spacer"></span><span class="refreshed">Last refreshed 11:38 AM</span></div><div class="cardfoot owner"><span class="ini">WP</span>Workforce Planning</div></div>
+          </div>
+          <div class="grouplabel">Account Performance</div>
+          <div class="grid g3">
+            <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">Account Health</div></div><div class="desc">Unified account-level view of operational performance, risk, and opportunity.</div><dl style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px"><div><dt>Source</dt><dd>Warehouse + Support</dd></div><div><dt>Refresh</dt><dd>Hourly</dd></div></dl><div class="row" style="margin-top:auto"><a class="btn-ghost" href="#">Open Dashboard</a><span class="spacer"></span><span class="refreshed">Last refreshed 11:42 AM</span></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+            <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">Account Performance</div></div><div class="desc">Ticket volumes, human-touch volume, AI containment, escalation rate, AHT, SL, margin.</div><dl style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px"><div><dt>Source</dt><dd>Warehouse + Support</dd></div><div><dt>Refresh</dt><dd>Hourly</dd></div></dl><div class="row" style="margin-top:auto"><a class="btn-ghost" href="#">Open Dashboard</a><span class="spacer"></span><span class="refreshed">Last refreshed 11:42 AM</span></div><div class="cardfoot owner"><span class="ini">SO</span>Support Operations</div></div>
+          </div>
+          <div class="grouplabel">AI Performance</div>
+          <div class="grid g3">
+            <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">AI Performance</div></div><div class="desc">Automation rate, containment, escalation trends, failure categories, knowledge gaps.</div><dl style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px"><div><dt>Source</dt><dd>Warehouse + Grafana</dd></div><div><dt>Refresh</dt><dd>Near real-time</dd></div></dl><div class="row" style="margin-top:auto"><a class="btn-ghost" href="#">Open Dashboard</a><span class="spacer"></span><span class="refreshed">Last refreshed 11:41 AM</span></div><div class="cardfoot owner"><span class="ini">AQ</span>AI Quality</div></div>
+            <div class="card hoverable"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">AI Opportunity Sizing</div></div><div class="desc">High-volume, low-containment intents sized by automation upside.</div><dl style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px"><div><dt>Source</dt><dd>Warehouse</dd></div><div><dt>Refresh</dt><dd>Daily</dd></div></dl><div class="row" style="margin-top:auto"><a class="btn-ghost" href="#">Open Dashboard</a><span class="spacer"></span><span class="refreshed">Last refreshed 6:00 AM</span></div><div class="cardfoot owner"><span class="ini">OI</span>Operations Intelligence</div></div>
+          </div>
+        </div>
+
+        <div id="docs" class="subhead">Documentation <span class="count">6</span></div>
+        <div class="note" style="margin-bottom:12px">Auto-surfaced from Confluence labels (<b>ops-ai-doc</b>, <b>ops-data</b>, <b>ops-metric</b>, <b>ops-architecture</b>).</div>
+        <div class="grid g3" data-dir>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span><div class="title">Ops Intelligence Architecture</div></div><div class="desc">How the Operations data + AI layer is assembled.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg></span><div class="title">AI Prompting Standards</div></div><div class="desc">House standards for prompts used in Ops AI tools.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span><div class="title">Metric Definitions</div></div><div class="desc">Canonical definitions: containment, AHT, SL, margin.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M3 3h18v6H3zM3 15h18v6H3z"/></svg></span><div class="title">Data Definitions &amp; Lineage</div></div><div class="desc">Warehouse tables and lineage behind Ops dashboards.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><div class="title">Automation Runbooks</div></div><div class="desc">How Ops automations are built, deployed, and monitored.</div></a>
+          <a class="card hoverable" href="#"><div class="row"><span class="icon-tile"><svg class="s" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></span><div class="title">Ops AI Governance &amp; FAQ</div></div><div class="desc">Guardrails, review process, and frequently asked questions.</div></a>
+        </div>
+      </section>
+
+      <!-- ===================== HELP ===================== -->
+      <section id="help">
+        <div class="sec-head"><div class="eyebrow">Help</div><h2>Can't find something?</h2></div>
+        <div class="grid g4" style="margin-top:16px">
+          <a class="card hoverable" href="#"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/></svg></span><div class="title" style="margin-top:10px">Request documentation</div><div class="desc">Can't find a doc? Ask us to add it.</div></a>
+          <a class="card hoverable" href="#"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg></span><div class="title" style="margin-top:10px">Report an issue</div><div class="desc">Flag a broken link, system, or dashboard.</div></a>
+          <a class="card hoverable" href="#"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg></span><div class="title" style="margin-top:10px">Submit an AI use case</div><div class="desc">Propose a new Ops AI tool or automation.</div></a>
+          <a class="card hoverable" href="#"><span class="icon-tile"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><div class="title" style="margin-top:10px">Suggest an improvement</div><div class="desc">Ideas to make the Hub better.</div></a>
+        </div>
+        <div class="card" style="margin-top:14px;flex-direction:row;align-items:center">
+          <span style="font-size:12px;color:var(--ink-muted)">Page Owner: <b style="color:var(--ink)">Operations Intelligence</b></span>
+          <span class="spacer"></span>
+          <span style="font-size:12px;color:var(--ink-faint)">Updated Aug 11</span>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Live daily-volume bars (deterministic mock series)
+  (function () {
+    var series = [9.8,12.1,10.4,11.9,13.2,8.6,7.2,10.1,12.8,11.4,13.0,9.7,8.1,11.2,12.5,10.9,13.4,12.0,9.3,7.8,10.6,12.2,11.7,13.1,12.4,10.2,8.4,11.0,12.9,11.1];
+    var max = Math.max.apply(null, series);
+    var bars = document.getElementById('bars');
+    series.forEach(function (v) {
+      var b = document.createElement('i');
+      b.style.height = (v / max * 100) + '%';
+      bars.appendChild(b);
+    });
+  })();
+
+  // Live search filter across every directory card — makes the front door feel real
+  (function () {
+    var q = document.getElementById('q');
+    var dirs = Array.prototype.slice.call(document.querySelectorAll('[data-dir]'));
+    var cards = [];
+    dirs.forEach(function (dir) {
+      Array.prototype.slice.call(dir.children).forEach(function (c) {
+        cards.push({ el: c, text: c.textContent.toLowerCase() });
+      });
+    });
+    q.addEventListener('input', function () {
+      var term = q.value.trim().toLowerCase();
+      cards.forEach(function (c) {
+        c.el.classList.toggle('hidden', term.length > 0 && c.text.indexOf(term) === -1);
+      });
+      // hide a whole section if nothing in it matches
+      document.querySelectorAll('section').forEach(function (sec) {
+        var dirCards = sec.querySelectorAll('[data-dir] > *');
+        if (!dirCards.length) return;
+        var anyVisible = Array.prototype.some.call(dirCards, function (c) { return !c.classList.contains('hidden'); });
+        sec.style.opacity = term && !anyVisible ? '0.35' : '1';
+      });
+    });
+  })();
+</script>
