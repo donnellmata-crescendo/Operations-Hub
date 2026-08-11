@@ -12,6 +12,10 @@ principles and information architecture for an Operations-specific experience.
 > scaffolded and land in later phases. See
 > [`docs/operations-hub-architecture.md`](docs/operations-hub-architecture.md).
 
+> **Deploy it (≈15 min):** this is the polished, sidebar version of the hub.
+> Hosting it once turns it into a real internal site you link to from the
+> Confluence OPSHUB space. See **[`docs/DEPLOY.md`](docs/DEPLOY.md)**.
+
 ## Stack
 
 - **Next.js 14** (App Router, React server components) + **TypeScript**
